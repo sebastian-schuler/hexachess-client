@@ -1,5 +1,4 @@
-
-import { ChessHexagon } from "../../../../shared/SharedTypes";
+import { ChessHexagon } from "../../types/SharedTypes";
 import { checkMovementPosition } from "./MovementHelpers";
 
 export const getKingMovements = (hex: ChessHexagon, map: Map<string, ChessHexagon>) => {

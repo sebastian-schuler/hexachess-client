@@ -1,4 +1,4 @@
-import { ChessHexagon, Coords } from "../../../shared/SharedTypes";
+import { ChessHexagon, Coords } from "../types/SharedTypes";
 
 export const coordinatesToId = (q: number, r: number, s: number) => {
     return `${q};${r};${s}`;

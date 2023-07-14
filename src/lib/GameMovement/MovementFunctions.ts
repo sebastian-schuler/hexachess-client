@@ -1,4 +1,4 @@
-import { ChessHexagon, Coords, PlayerColor } from "../../../../shared/SharedTypes";
+import { ChessHexagon, Coords, PlayerColor } from "../../types/SharedTypes";
 import { coordinatesToId } from "../Helpers";
 
 /**

@@ -1,4 +1,4 @@
-import { ChessHexagon } from "../../../../shared/SharedTypes";
+import { ChessHexagon } from "../../types/SharedTypes";
 import {  moveBackwards, moveDiagonalLeftBackward, moveDiagonalLeftForward, moveDiagonalRightBackward, moveDiagonalRightForward, moveForward, moveSkipDiagonalLeftBackwards, moveSkipDiagonalLeftForward, moveSkipDiagonalRightBackwards, moveSkipDiagonalRightForward, moveSkipLeft, moveSkipRight } from "./MovementFunctions";
 import { getMovementDirection } from "./MovementHelpers";
 
