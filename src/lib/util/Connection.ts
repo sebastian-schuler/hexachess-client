@@ -1,5 +1,7 @@
-import { ChessHexagon, ClientToServer, ResponseUpdate, ServerToClient } from "../../../../shared/SharedTypes";
+import { ChessHexagon, ClientToServer, ResponseUpdate, ServerToClient } from "../../types/SharedTypes";
 import { appState } from "../State";
+
+const URL = import.meta.env.DEV ? "ws://localhost:8080" : import.meta.env.VITE_WS_URL;
 
 class Connection {
 
@@ -10,7 +12,7 @@ class Connection {
 
         console.log("Connection constructor");
 
-        this.ws = new WebSocket('ws://localhost:8080');
+        this.ws = new WebSocket(URL);
         this.responseHandlers = [];
 
         this.ws.onopen = () => {
