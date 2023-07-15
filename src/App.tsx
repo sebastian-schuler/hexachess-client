@@ -1,13 +1,12 @@
 import { enableMapSet } from "immer";
 import { useSnapshot } from "valtio";
-import Menu from "./screens/Menu";
-import { appState } from "./lib/State";
-import Lobby from "./screens/Lobby";
 import Container from "./components/Container";
+import Credits from "./components/Credits";
+import { appState } from "./lib/State";
 import Game from "./screens/Game";
 import Loading from "./screens/Loading";
-import Credits from "./components/Credits";
-import Checkbox from "./components/Checkbox";
+import Lobby from "./screens/Lobby";
+import Menu from "./screens/Menu";
 
 const App = () => {
 
