@@ -6,6 +6,8 @@ export type AppState = {
 
     lobby: GameLobby | null
     game: GameState | null
+
+    displayCoordinates: boolean
 }
 
 export type GameLobby = {

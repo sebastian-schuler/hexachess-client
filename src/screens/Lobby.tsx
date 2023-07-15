@@ -49,7 +49,7 @@ const Lobby = () => {
                 </div>
             </div>
 
-            <div className='flex flex-col gap-4 self-center border p-6 rounded-xl'>
+            <div className='flex flex-col gap-4 self-center border px-6 py-4 rounded-xl'>
                 <h3 className='text-2xl text-white text-center font-bold'>Lobby</h3>
                 <div className='flex gap-2 text-gray-300'>
                     <span>Black:</span>

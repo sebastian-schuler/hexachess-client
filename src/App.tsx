@@ -5,6 +5,9 @@ import { appState } from "./lib/State";
 import Lobby from "./screens/Lobby";
 import Container from "./components/Container";
 import Game from "./screens/Game";
+import Loading from "./screens/Loading";
+import Credits from "./components/Credits";
+import Checkbox from "./components/Checkbox";
 
 const App = () => {
 
@@ -33,17 +36,15 @@ const App = () => {
       )
     }
   } else {
-    content = (
-      <div>
-        <h1>Connecting...</h1>
-      </div>
-    )
+    content = <Loading />
   }
 
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">
-      {content}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-pattern">
+      <Credits />
+      <div className="bg-gray-900 rounded-xl border border-gray-950">
+        {content}
+      </div>
     </div>
   )
 }
