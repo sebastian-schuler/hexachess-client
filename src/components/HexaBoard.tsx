@@ -80,7 +80,7 @@ const HexaBoard = ({ map, selectedHex, setSelectedHex, setPreviousSelectedHex}: 
     const arr = Array.from(map.values());
 
     return (
-        <div className='bg-stone-950'>
+        <div className='bg-gray-900'>
             <HexGrid width={'70vw'} height={'100vh'}>
                 <Layout size={{ x: 5, y: 5 }} flat={true} spacing={1.02} origin={{ x: 0, y: 0 }}>
                     {

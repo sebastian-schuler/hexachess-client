@@ -1,5 +1,5 @@
 import { ChessHexagon } from "../../types/SharedTypes";
-import { isValidCoordinates } from "../Helpers";
+import { isValidCoordinates } from "../util/Helpers";
 import { isHexEmpty, isHexEnemy, moveDiagonalLeftForward, moveDiagonalRightForward, moveForward } from "./MovementFunctions";
 
 export const getPawnMovements = ({ coords, piece }: ChessHexagon, map: Map<string, ChessHexagon>) => {

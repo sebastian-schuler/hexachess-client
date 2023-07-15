@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ChessHexagon } from "../types/SharedTypes";
 import HexaBoard from '../components/HexaBoard';
 import { getPossibleMovements } from '../lib/GameMovement/MovementHandler';
-import { coordinatesToId, getHexId } from '../lib/Helpers';
+import { coordinatesToId, getHexId } from '../lib/util/Helpers';
 import { useSnapshot } from 'valtio';
 import { appState } from '../lib/State';
 import { connection } from '../lib/util/Connection';
@@ -120,14 +120,26 @@ const Game = () => {
                 setPreviousSelectedHex={setPreviousSelectedHex}
             />
 
-            <div className='flex bg-neutral-800 w-full text-white p-8'>
-                active turn: {appStateSnap.game.currentTurn} ({isMyTurn ? "my turn" : "not my turn"})
-                <br />
-                selected: {selectedHex && selectedHex.piece?.type}
-                <br />
-                color: {appStateSnap.lobby?.playerColor}
-                <br />
-                turn count: {Math.floor(appStateSnap.game.turnCount)}
+            <div className='flex bg-gray-900 w-full text-white p-8'>
+
+                <div className='flex flex-col justify-between'>
+
+                    <div>
+                        <div>Turn Count: <span className='text-lg font-bold'>{Math.floor(appStateSnap.game.turnCount)}</span></div>
+                        <div>Active Turn: <span className='text-lg font-bold'>{appStateSnap.game.currentTurn} ({isMyTurn ? "You" : "Opponent"})</span></div>
+                        <div>Selected: <span className='text-lg font-bold'>{selectedHex && selectedHex.piece?.type}</span></div>
+
+                        <div className='text-lg font-bold'>
+                            {appStateSnap.game.gameEnded && "Game ended! Winner is " + appStateSnap.game.winner}
+                        </div>
+                    </div>
+
+                    <div>
+                        
+                    </div>
+
+                </div>
+
             </div>
         </div>
     )

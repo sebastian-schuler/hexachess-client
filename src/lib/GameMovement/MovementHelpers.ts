@@ -1,5 +1,5 @@
 import { ChessHexagon, Coords, PlayerColor } from "../../types/SharedTypes";
-import { isValidCoordinates } from "../Helpers";
+import { isValidCoordinates } from "../util/Helpers";
 import { isHexEmpty, isHexEnemy } from "./MovementFunctions";
 
 /**

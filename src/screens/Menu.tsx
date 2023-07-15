@@ -61,22 +61,32 @@ const Menu = () => {
     }
 
     return (
-        <div className="p-8 flex flex-col gap-20">
+        <div className="flex flex-col gap-20">
 
-            <div className="flex gap-4">
-                <Button text="Join lobby" onClick={handleJoinLobby} disabled={awaitingResponse} />
-                <Textfield
-                    id="lobbyid-input"
-                    placeholder="Lobby ID"
-                    value={lobbyId}
-                    onChange={(value) => setLobbyId(value.toUpperCase())}
-                    onEnter={handleJoinLobby}
-                />
+            <h1 className="text-6xl font-bold text-center text-white">HexaChess</h1>
+
+            <div className="flex flex-col sm:flex-row gap-40 sm:gap-0 justify-evenly">
+
+                <div className="flex flex-col gap-4">
+                    <h2 className="text-2xl font-bold text-center text-white mb-8">Join Lobby</h2>
+                    <Textfield
+                        id="lobbyid-input"
+                        placeholder="Lobby ID"
+                        value={lobbyId}
+                        onChange={(value) => setLobbyId(value.toUpperCase())}
+                        onEnter={handleJoinLobby}
+                    />
+                    <Button text="Join Lobby" onClick={handleJoinLobby} disabled={awaitingResponse || lobbyId.length !== 4} />
+                </div>
+
+                <div className="border-b-2 w-48 sm:h-48 sm:w-auto sm:border-l-2 sm:border-b-0 border-neutral-400 self-center"></div>
+
+                <div className="flex flex-col gap-4">
+                    <h2 className="text-2xl font-bold text-center text-white mb-8">Create New Lobby</h2>
+                    <Button text="Create Lobby" onClick={handleCreateLobby} disabled={awaitingResponse} />
+                </div>
+
             </div>
-
-            <div className="border-b-2 border-neutral-400 w-10 self-center"></div>
-
-            <Button text="Create lobby" onClick={handleCreateLobby} disabled={awaitingResponse} />
 
         </div>
     )

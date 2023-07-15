@@ -22,4 +22,7 @@ export type GameState = {
     map: Map<string, ChessHexagon>
     currentTurn: PlayerColor
     turnCount: number
+
+    gameEnded: boolean
+    winner: PlayerColor | null
 }

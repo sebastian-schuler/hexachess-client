@@ -22,6 +22,7 @@ export type UnsolicitedUpdate =
     | { tag: "PlayerJoined" }
     | { tag: "GameStarted", state: GameStateUpdate }
     | { tag: "GameStateUpdate", state: GameStateUpdate }
+    | { tag: "GameEnded", winner: PlayerColor, state: GameStateUpdate }
 
 export type GameStateUpdate = {
     map: string

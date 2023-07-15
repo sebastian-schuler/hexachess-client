@@ -1,5 +1,5 @@
 import { ChessHexagon, Coords, PlayerColor } from "../../types/SharedTypes";
-import { coordinatesToId } from "../Helpers";
+import { coordinatesToId } from "../util/Helpers";
 
 /**
  * Check if a hex has an enemy piece

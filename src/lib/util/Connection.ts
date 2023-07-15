@@ -52,7 +52,9 @@ class Connection {
                         appState.game = {
                             map: initialMap,
                             currentTurn: data.update.state.currentTurn,
-                            turnCount: data.update.state.turnCount
+                            turnCount: data.update.state.turnCount,
+                            gameEnded: false,
+                            winner: null
                         }
                         appState.screen = "game";
                         break;
@@ -62,11 +64,22 @@ class Connection {
                         appState.game = {
                             map: updatedMap,
                             currentTurn: data.update.state.currentTurn,
-                            turnCount: data.update.state.turnCount
+                            turnCount: data.update.state.turnCount,
+                            gameEnded: false,
+                            winner: null
                         }
-                        console.log(updatedMap);
                         break;
 
+                    case "GameEnded":
+                        const finalMap = new Map<string, ChessHexagon>(JSON.parse(data.update.state.map));
+                        appState.game = {
+                            map: finalMap,
+                            currentTurn: data.update.state.currentTurn,
+                            turnCount: data.update.state.turnCount,
+                            gameEnded: true,
+                            winner: data.update.winner
+                        }
+                        break;
                 }
             }
         }
