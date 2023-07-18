@@ -8,6 +8,7 @@ export type AppState = {
     game: GameState | null
 
     displayCoordinates: boolean
+    showPlayerLeftMessage: boolean
 }
 
 export type GameLobby = {
@@ -27,4 +28,9 @@ export type GameState = {
 
     gameEnded: boolean
     winner: PlayerColor | null
+
+    blackCaptures: string[]
+    whiteCaptures: string[]
+    scoreBlack: number
+    scoreWhite: number
 }

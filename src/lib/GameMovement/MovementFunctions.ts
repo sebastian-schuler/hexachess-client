@@ -5,7 +5,7 @@ import { coordinatesToId } from "../util/Helpers";
  * Check if a hex has an enemy piece
  */
 export const isHexEnemy = (c: Coords, currentPlayer: PlayerColor, map: Map<string, ChessHexagon>) => {
-    const hex = map.get(coordinatesToId(c.q, c.r, c.s));
+    const hex = map.get(coordinatesToId(c));
     if (!hex) return false;
     if (!hex.piece) return false;
     if (hex.piece.player !== currentPlayer) return true;
@@ -16,7 +16,7 @@ export const isHexEnemy = (c: Coords, currentPlayer: PlayerColor, map: Map<strin
  * Check if a hex is empty
  */
 export const isHexEmpty = (c: Coords, map: Map<string, ChessHexagon>) => {
-    const hex = map.get(coordinatesToId(c.q, c.r, c.s));
+    const hex = map.get(coordinatesToId(c));
     if (!hex) return false;
     if (hex.piece) return false;
     return true;

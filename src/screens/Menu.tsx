@@ -1,112 +1,140 @@
-import { useState } from "react";
-import { connection } from "../lib/util/Connection";
-import { appState } from "../lib/State";
+import { useState, useEffect } from "react";
 import Button from "../components/Button";
 import Textfield from "../components/Textfield";
+import { appState } from "../lib/State";
+import { connection } from "../lib/util/Connection";
+import { useToast } from "../lib/hooks/useToast";
+import { useSnapshot } from "valtio";
 
 const Menu = () => {
 
-    const [awaitingResponse, setAwaitingResponse] = useState(false);
-    const [lobbyId, setLobbyId] = useState("");
+  const appStateSnap = useSnapshot(appState);
+  const [awaitingResponse, setAwaitingResponse] = useState(false);
+  const [lobbyId, setLobbyId] = useState("");
 
-    /**
-     * Create a new lobby
-     */
-    const handleCreateLobby = () => {
-        setAwaitingResponse(true);
-        connection.send({ tag: "CreateLobby" }, (data) => {
-            if (data.tag === "CreatedLobby") {
-                appState.screen = "lobby";
-                appState.lobby = {
-                    id: data.id,
-                    isHost: true,
-                    playerColor: data.playerColor,
-                    players: {
-                        black: data.playerColor === "black" ? "You" : null,
-                        white: data.playerColor === "white" ? "You" : null
-                    }
-                }
-            } else {
-                console.log("Couldn't create lobby: ", data);
-            }
+  const showToastInvalidId = useToast("Invalid lobby ID");
+  const showToastInvalidCreate = useToast("Couldn't create lobby");
+  const showToastPlayerLeft = useToast("The other player left the game!");
 
-            setAwaitingResponse(false);
-        });
+  useEffect(() => {
+    if (appStateSnap.showPlayerLeftMessage) {
+      showToastPlayerLeft();
+      appState.showPlayerLeftMessage = false;
     }
+    return () => { }
+  }, [])
 
-    /**
-     * Join a lobby with the given ID
-     */
-    const handleJoinLobby = () => {
-        setAwaitingResponse(true);
-        connection.send({ tag: "JoinLobby", id: lobbyId }, (data) => {
+  /**
+   * Create a new lobby
+   */
+  const handleCreateLobby = () => {
+    setAwaitingResponse(true);
+    connection.send({ tag: "CreateLobby" }, (data) => {
+      if (data.tag === "CreatedLobby") {
+        appState.screen = "lobby";
+        appState.lobby = {
+          id: data.id,
+          isHost: true,
+          playerColor: data.playerColor,
+          players: {
+            black: data.playerColor === "black" ? "You" : null,
+            white: data.playerColor === "white" ? "You" : null,
+          },
+        };
+      } else {
+        showToastInvalidCreate()
+      }
 
-            if (data.tag === "JoinedLobby") {
-                appState.screen = "lobby";
-                appState.lobby = {
-                    id: data.id,
-                    isHost: false,
-                    playerColor: data.playerColor,
-                    players: {
-                        black: data.playerColor === "black" ? "You" : "Opponent",
-                        white: data.playerColor === "white" ? "You" : "Opponent"
-                    }
-                }
-            } else {
-                console.log("Couldn't join lobby: ", data);
-            }
+      setAwaitingResponse(false);
+    });
+  };
 
-            setAwaitingResponse(false);
-        });
-    }
+  /**
+   * Join a lobby with the given ID
+   */
+  const handleJoinLobby = (code:string) => {
+    setAwaitingResponse(true);
+    console.log(code);
+    connection.send({ tag: "JoinLobby", id: code }, (data) => {
+      if (data.tag === "JoinedLobby") {
+        appState.screen = "lobby";
+        appState.lobby = {
+          id: data.id,
+          isHost: false,
+          playerColor: data.playerColor,
+          players: {
+            black: data.playerColor === "black" ? "You" : "Opponent",
+            white: data.playerColor === "white" ? "You" : "Opponent",
+          },
+        };
+      } else {
+        showToastInvalidId()
+      }
 
-    return (
-        <div className="flex flex-col gap-20">
+      setAwaitingResponse(false);
+    });
+  };
 
-            <h1 className="text-6xl font-bold text-center text-white">HexaChess</h1>
+  /**
+   * Copy the lobby ID to the clipboard
+   */
+  const handlePasteLobbyId = () => {
+    navigator.clipboard.readText().then((text) => {
+      if (text.length !== 4) {
+        showToastInvalidId()
+        return;
+      }
+      handleJoinLobby(text);
+    });
+  };
 
-            <div className="flex flex-col sm:flex-row gap-16 sm:gap-20 justify-evenly">
+  return (
+    <div className="flex flex-col gap-14">
+      <h1 className="text-6xl font-bold text-center text-white">HexaChess</h1>
 
-                <div className="flex flex-col gap-4">
-                    <h2 className="text-2xl font-bold text-center text-white mb-8">Join Lobby</h2>
-                    <Textfield
-                        id="lobbyid-input"
-                        placeholder="Lobby ID"
-                        value={lobbyId}
-                        onChange={(value) => setLobbyId(value.toUpperCase())}
-                        onEnter={handleJoinLobby}
-                    />
-                    <Button text="Join Lobby" onClick={handleJoinLobby} disabled={awaitingResponse || lobbyId.length !== 4} />
-                </div>
+      <div className="grid grid-cols-1 md:grid-cols-1-auto-1 gap-8">
 
-                <div className="border-b-2 w-48 sm:h-48 sm:w-auto sm:border-l-2 sm:border-b-0 border-neutral-400 self-center"></div>
-
-                <div className="flex flex-col gap-4">
-                    <h2 className="text-2xl font-bold text-center text-white mb-8">Create New Lobby</h2>
-                    <Button text="Create Lobby" onClick={handleCreateLobby} disabled={awaitingResponse} />
-                </div>
-
-            </div>
-
+        <div className="flex flex-col gap-4">
+          <h2 className="text-2xl text-center text-white mb-4">
+            Join Lobby
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Textfield
+              id="lobbyid-input"
+              placeholder="Lobby ID"
+              value={lobbyId}
+              onChange={(value) => setLobbyId(value.toUpperCase())}
+              onEnter={() => handleJoinLobby(lobbyId)}
+              maxLength={4}
+            />
+            <div className="hidden lg:block"></div>
+            <Button
+              text="Join"
+              onClick={() => handleJoinLobby(lobbyId)}
+              disabled={awaitingResponse || lobbyId.length !== 4}
+            />
+            <Button
+              text="Paste"
+              onClick={handlePasteLobbyId}
+            />
+          </div>
         </div>
-    )
-}
 
-export default Menu
+        <div className="border-b-2 w-2/3 justify-self-center md:h-3/4 md:w-auto md:border-l-2 md:border-b-0 border-neutral-500 self-center"></div>
 
+        <div className="flex flex-col gap-4">
+          <h2 className="text-2xl text-center text-white mb-4">
+            Create Lobby
+          </h2>
+          <Button
+            text="Create Lobby"
+            onClick={handleCreateLobby}
+            disabled={awaitingResponse}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
 
-// html {
-//     --s: 37px; /* control the size */
-    
-//     --c:#0000,#2FB8AC .5deg 119.5deg,#0000 120deg;
-//     --g1:conic-gradient(from  60deg at 56.25% calc(425%/6),var(--c));
-//     --g2:conic-gradient(from 180deg at 43.75% calc(425%/6),var(--c));
-//     --g3:conic-gradient(from -60deg at 50%   calc(175%/12),var(--c));
-//     background:
-//       var(--g1),var(--g1) var(--s) calc(1.73*var(--s)),
-//       var(--g2),var(--g2) var(--s) calc(1.73*var(--s)),
-//       var(--g3) var(--s) 0,var(--g3) 0 calc(1.73*var(--s)) 
-//       #ECBE13;
-//     background-size: calc(2*var(--s)) calc(3.46*var(--s));
-//   }
-  
+export default Menu;

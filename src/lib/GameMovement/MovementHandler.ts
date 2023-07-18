@@ -6,14 +6,14 @@ import { getPawnMovements } from "./PawnMovement";
 import { getQueenMovements } from "./QueenMovement";
 import { getRookMovements } from "./RookMovement";
 
-export const getPossibleMovements = (hex: ChessHexagon, map: Map<string, ChessHexagon>) => {
+export const getPossibleMovements = (hex: ChessHexagon, map: Map<string, ChessHexagon>, turn: number) => {
 
     const type = hex.piece?.type;
     const player = hex.piece?.player;
 
     if (!type || !player) return [];
 
-    if (type === 'pawn') return getPawnMovements(hex, map);
+    if (type === 'pawn') return getPawnMovements(hex, map, turn);
     if (type === 'bishop') return getBishopMovements(hex, map);
     if (type === 'rook') return getRookMovements(hex, map);
     if (type === 'knight') return getKnightMovements(hex, map);

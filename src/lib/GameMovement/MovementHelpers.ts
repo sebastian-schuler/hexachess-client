@@ -1,5 +1,5 @@
 import { ChessHexagon, Coords, PlayerColor } from "../../types/SharedTypes";
-import { isValidCoordinates } from "../util/Helpers";
+import { coordinatesToId, isValidCoordinates } from "../util/Helpers";
 import { isHexEmpty, isHexEnemy } from "./MovementFunctions";
 
 /**
@@ -57,4 +57,46 @@ export const getMovementDirection = ({ coords, piece }: ChessHexagon, map: Map<s
     }
 
     return possibleMovements;
+}
+
+
+/**
+ * Checks if a pawn is en passant
+ * @param fromHex 
+ * @param map 
+ * @param turn 
+ * @returns 
+ */
+export const getPawnEnPassant = (fromHex: ChessHexagon, map: Map<string, ChessHexagon>, turn: number): Coords[] => {
+
+    if (!fromHex.piece || fromHex.piece.type !== "pawn") return [];
+
+    const { q, r, s } = fromHex.coords;
+
+    const playerColor = fromHex.piece.player;
+
+    const checkHexRight = playerColor === "white" ? coordinatesToId({ q: q + 1, r: r, s: s - 1 }) : coordinatesToId({ q: q + 1, r: r - 1, s: s });
+    const checkHexLeft = playerColor === "white" ? coordinatesToId({ q: q - 1, r: r + 1, s: s }) : coordinatesToId({ q: q - 1, r: r, s: s + 1 });
+    const hexRight = map.get(checkHexRight);
+    const hexLeft = map.get(checkHexLeft);
+
+    const result: Coords[] = [];
+
+    if (
+        hexRight?.piece?.type === "pawn" &&
+        hexRight.piece.player !== playerColor &&
+        hexRight.piece.pawnDoubleStepTurn === turn - 0.5
+    ) {
+        result.push(playerColor === "white" ? { q: q + 1, r: r - 1, s: s } : { q: q + 1, r: r, s: s - 1 });
+    }
+
+    if (
+        hexLeft?.piece?.type === "pawn" &&
+        hexLeft.piece.player !== playerColor &&
+        hexLeft.piece.pawnDoubleStepTurn === turn - 0.5
+    ) {
+        result.push(playerColor === "white" ? { q: q - 1, r: r, s: s + 1 } : { q: q - 1, r: r - 1, s: s });
+    }
+
+    return result;
 }

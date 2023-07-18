@@ -4,6 +4,7 @@ export type ClientToServer =
     | { tag: "JoinLobby", id: string }
     | { tag: "StartGame" }
     | { tag: "MovePiece", idFrom: string, idTo: string }
+    | { tag: "SwapPlayerColors" }
 
 export type ServerToClient =
     { tag: "Response", response: ResponseUpdate }
@@ -20,6 +21,7 @@ export type ResponseUpdate =
 export type UnsolicitedUpdate =
     { tag: "PlayerLeft" }
     | { tag: "PlayerJoined" }
+    | { tag: "PlayerSwapped" }
     | { tag: "GameStarted", state: GameStateUpdate }
     | { tag: "GameStateUpdate", state: GameStateUpdate }
     | { tag: "GameEnded", winner: PlayerColor, state: GameStateUpdate }
@@ -28,6 +30,10 @@ export type GameStateUpdate = {
     map: string
     currentTurn: PlayerColor
     turnCount: number
+    blackCaptures: string[]
+    whiteCaptures: string[]
+    scoreBlack: number
+    scoreWhite: number
 }
 
 export type ResponseErrorCode = "lobbyFull" | "invalidLobbyId";
@@ -59,6 +65,8 @@ export type Piece = {
     type: PieceType
     player: PlayerColor
     hasWalked: boolean
+    worth: number
+    pawnDoubleStepTurn?: number
 }
 
 export type PieceType = 'pawn' | 'rook' | 'knight' | 'bishop' | 'queen' | 'king';

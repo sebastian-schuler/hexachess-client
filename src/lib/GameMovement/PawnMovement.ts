@@ -1,11 +1,14 @@
 import { ChessHexagon } from "../../types/SharedTypes";
 import { isValidCoordinates } from "../util/Helpers";
 import { isHexEmpty, isHexEnemy, moveDiagonalLeftForward, moveDiagonalRightForward, moveForward } from "./MovementFunctions";
+import { getPawnEnPassant } from "./MovementHelpers";
 
-export const getPawnMovements = ({ coords, piece }: ChessHexagon, map: Map<string, ChessHexagon>) => {
+export const getPawnMovements = (hex: ChessHexagon, map: Map<string, ChessHexagon>, turn: number) => {
 
-    const type = piece?.type;
-    const player = piece?.player;
+    const type = hex.piece?.type;
+    const player = hex.piece?.player;
+    const coords = hex.coords;
+    const piece = hex.piece;
 
     if (!type || !player) return [];
 
@@ -36,6 +39,10 @@ export const getPawnMovements = ({ coords, piece }: ChessHexagon, map: Map<strin
     if (isValidCoordinates(capture2) && isHexEnemy(capture2, player, map)) {
         possibleMovements.push(capture2);
     }
+
+    // En passant
+    const enPassantCoords = getPawnEnPassant(hex, map, turn);
+    possibleMovements.push(...enPassantCoords);
 
     return possibleMovements;
 }

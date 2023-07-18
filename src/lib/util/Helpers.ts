@@ -1,7 +1,7 @@
 import { ChessHexagon, Coords } from "../../types/SharedTypes";
 
-export const coordinatesToId = (q: number, r: number, s: number) => {
-    return `${q};${r};${s}`;
+export const coordinatesToId = (c: Coords) => {
+    return `${c.q};${c.r};${c.s}`;
 }
 
 export const getHexId = (hex: ChessHexagon) => {

@@ -9,5 +9,6 @@ export const appState = proxy<AppState>({
     lobby: null,
     game: null,
 
-    displayCoordinates: false
+    displayCoordinates: false,
+    showPlayerLeftMessage: false,
 });

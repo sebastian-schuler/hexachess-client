@@ -1,14 +1,32 @@
 import { produce } from 'immer';
 import { useCallback, useEffect, useState } from 'react';
 import { useSnapshot } from 'valtio';
-import Checkbox from '../components/Checkbox';
-import HexaBoard from '../components/HexaBoard';
+import GameSideboard from '../features/GameSideboard';
+import HexaBoard from '../features/HexaBoard';
 import { getPossibleMovements } from '../lib/GameMovement/MovementHandler';
 import { appState } from '../lib/State';
 import { connection } from '../lib/util/Connection';
 import { coordinatesToId, getHexId } from '../lib/util/Helpers';
-import { ChessHexagon } from "../types/SharedTypes";
+import { ChessHexagon, PlayerColor } from "../types/SharedTypes";
 
+/**
+ * Get the graphic of the piece
+ * @param key 
+ * @param color 
+ * @param type 
+ * @returns 
+ */
+const getPieceGraphic = (key: number, color: PlayerColor, type: string) => {
+    return <div key={key} className='stacked-element'>
+        <img src={`/${type}.svg`} alt='Captured' width={25} height={'auto'} className={`w-6 lg:w-8 ${color === "black" ? 'invert-[1]' : 'invert-[.1]'}`} />
+    </div>
+}
+
+/**
+ * Get the name of the piece
+ * @param hex 
+ * @returns 
+ */
 const getPieceName = (hex: ChessHexagon | null) => {
     if (!hex || !hex.piece) return null;
     let name = hex.piece.type.charAt(0).toUpperCase() + hex.piece.type.slice(1);
@@ -24,6 +42,7 @@ const Game = () => {
     const [selectedHex, setSelectedHex] = useState<ChessHexagon | null>(null);
     const [previousSelectedHex, setPreviousSelectedHex] = useState<ChessHexagon | null>(null);
     const isMyTurn = appStateSnap.game.currentTurn === appStateSnap.lobby?.playerColor;
+    const turn = appStateSnap.game.turnCount;
 
     useEffect(() => {
         if (appStateSnap?.game?.map) {
@@ -33,14 +52,6 @@ const Game = () => {
         }
         return () => { }
     }, [appStateSnap.game.map, setSelectedHex, setPreviousSelectedHex])
-
-
-    // Handle selection change
-    useEffect(() => {
-        if (!selectedHex) return;
-        handleSelectionChange(selectedHex, previousSelectedHex, isMyTurn);
-        return () => { }
-    }, [selectedHex, previousSelectedHex]);
 
     /**
      * Handle hexagon selection
@@ -61,6 +72,9 @@ const Game = () => {
         setSelectedHex(hex);
     }
 
+    /**
+     * Handle unselecting a hexagon
+     */
     const handleUnselectHex = () => {
         setGameMap(
             produce((draft) => {
@@ -72,7 +86,7 @@ const Game = () => {
     }
 
     // Handle movement and selection
-    const handleSelectionChange = useCallback((newHex: ChessHexagon, prevHex: ChessHexagon | null, myTurn: boolean) => {
+    const handleSelectionChange = useCallback((newHex: ChessHexagon, prevHex: ChessHexagon | null, myTurn: boolean, turn: number) => {
         setGameMap(
             produce((draft) => {
 
@@ -107,11 +121,11 @@ const Game = () => {
                     hex.isSelected = true;
 
                     // Get possible movements
-                    const possibleMoves = getPossibleMovements(hex, draft);
+                    const possibleMoves = getPossibleMovements(hex, draft, turn);
 
                     // Set possible movements
                     for (const move of possibleMoves) {
-                        const hex = draft.get(coordinatesToId(move.q, move.r, move.s));
+                        const hex = draft.get(coordinatesToId(move));
                         if (hex) hex.isWalkable = true;
                     }
                 }
@@ -119,8 +133,15 @@ const Game = () => {
         );
     }, []);
 
+    // Handle selection change
+    useEffect(() => {
+        if (!selectedHex) return;
+        handleSelectionChange(selectedHex, previousSelectedHex, isMyTurn, turn);
+        return () => { }
+    }, [selectedHex, previousSelectedHex, turn, isMyTurn, handleSelectionChange]);
+
     return (
-        <div className='flex flex-col sm:flex-row select-none'>
+        <div className='flex flex-col md:flex-row select-none'>
 
             <div className='relative flex-grow shadow-2xl'>
                 <HexaBoard
@@ -132,47 +153,40 @@ const Game = () => {
                     displayCoords={appStateSnap.displayCoordinates}
                     isMyTurn={isMyTurn}
                 />
-                <div className='absolute flex flex-col left-8 top-8'>
-                    <div className='text-white text-2xl'>
+
+                <div className='absolute flex flex-col left-6 top-6 text-lg'>
+                    <div className='text-white'>
                         Turn: <span className='font-bold'>{Math.floor(appStateSnap.game.turnCount)}</span>
                     </div>
-                    <div className='text-white text-2xl'>
+                    <div className='text-white'>
                         Selected: <span className='font-bold'>{selectedHex && getPieceName(selectedHex)}</span>
                     </div>
-                    <div className={`${isMyTurn ? 'text-green-600' : 'text-indigo-600'} text-3xl font-bold`}>
+                    <div className={`${isMyTurn ? 'text-primary-500' : 'text-blue-500'} font-bold`}>
                         {isMyTurn ? "Your Turn!" : "Opponents Turn!"}
                     </div>
                 </div>
-            </div>
 
-            <div className='flex flex-col justify-between bg-gray-800 text-white'>
-
-                <div className='flex flex-1 py-8 px-10'>
-                    <div className='flex flex-col justify-between'>
-                        <div>
-                            <h3 className='text-2xl font-bold'>HexaChess</h3>
-                            <div className='text-lg font-bold'>
-                                {appStateSnap.game.gameEnded && "Game ended! Winner is " + appStateSnap.game.winner}
-                            </div>
-                        </div>
-
-                        <div className='pb-6'>
-                            <Checkbox
-                                label='Display Coordinates'
-                                onChange={(value) => appState.displayCoordinates = value}
-                                checked={appStateSnap.displayCoordinates}
-                            />
-                            <div className='w-64'></div>
-                        </div>
-
+                <div className={`absolute flex flex-col right-6 ${appStateSnap.lobby?.playerColor === 'white' ? 'top-6' : 'bottom-6'} bg-dark-500 p-2 rounded shadow-lg`}>
+                    <div className='text-white'>Score: {appStateSnap.game.scoreBlack}</div>
+                    <div className='flex'>
+                        {
+                            appStateSnap.game.blackCaptures.map((piece, i) => getPieceGraphic(i, 'black', piece))
+                        }
                     </div>
                 </div>
 
-                <div className='p-8 self-center'>
-                    <a href="https://sebastian-schuler.de/" target="_blank" className='text-center text-gray-400 text-sm hover:text-white transition'>Made by Sebastian Schuler</a>
+                <div className={`absolute flex flex-col right-6 ${appStateSnap.lobby?.playerColor === 'black' ? 'top-6' : 'bottom-6'} bg-dark-500 p-2 rounded shadow-lg`}>
+                    <div className='text-white'>Score: {appStateSnap.game.scoreWhite}</div>
+                    <div className='flex'>
+                        {
+                            appStateSnap.game.whiteCaptures.map((piece, i) => getPieceGraphic(i, 'white', piece))
+                        }
+                    </div>
                 </div>
 
             </div>
+
+            <GameSideboard />
         </div>
     )
 }

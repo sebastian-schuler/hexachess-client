@@ -2,17 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
-
 .bg-pattern {
-    --s: 37px;
+  background-image: linear-gradient(
+      to bottom,
+      theme("colors.primary.500 / 0.05"),
+      theme("colors.primary.500 / 0.4")
+    ),
+    url("/pattern.svg");
+}
 
-    --c: #0000, theme( colors.gray.950 ) .5deg 119.5deg, #0000 120deg;
-    --g1: conic-gradient(from 60deg at 56.25% calc(425%/6), var(--c));
-    --g2: conic-gradient(from 180deg at 43.75% calc(425%/6), var(--c));
-    --g3: conic-gradient(from -60deg at 50% calc(175%/12), var(--c));
-    background:
-        var(--g1), var(--g1) var(--s) calc(1.73*var(--s)),
-        var(--g2), var(--g2) var(--s) calc(1.73*var(--s)),
-        var(--g3) var(--s) 0, var(--g3) 0 calc(1.73*var(--s)) theme( colors.gray.900 );
-    background-size: calc(2*var(--s)) calc(3.46*var(--s));
+.path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: dash 3s linear alternate infinite;
+  stroke: theme("colors.primary.500");
+}
+
+@keyframes dash {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 500;
+  }
+}
+
+.stacked-element {
+  z-index: 1;
+  align-self: flex-end;
+}
+
+.stacked-element:not(:first-child) {
+  margin-left: calc(0.5rem * -1);
 }

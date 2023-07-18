@@ -33,6 +33,14 @@ class Connection {
 
                 switch (data.update.tag) {
 
+                    case "PlayerSwapped":
+                        if (!appState.lobby) return;
+                        const temp = appState.lobby.players.black;
+                        appState.lobby.players.black = appState.lobby.players.white;
+                        appState.lobby.players.white = temp;
+                        appState.lobby.playerColor = appState.lobby.playerColor == "black" ? "white" : "black";
+                        break;
+
                     case "PlayerJoined":
                         if (appState.lobby && appState.lobby?.players.black == null)
                             appState.lobby.players.black = "Opponent";
@@ -41,10 +49,22 @@ class Connection {
                         break;
 
                     case "PlayerLeft":
-                        if (appState.lobby && appState.lobby?.players.black == "Opponent")
-                            appState.lobby.players.black = null;
-                        else if (appState.lobby && appState.lobby?.players.white == "Opponent")
-                            appState.lobby.players.white = null;
+                        if (appState.game !== null) {
+                            // Leave the game
+                            appState.game = null;
+                            appState.screen = "menu";
+                            appState.showPlayerLeftMessage = true;
+
+                        } else if (appState.lobby) {
+                            // Remove opponent from lobby, become host
+                            if (appState.lobby?.players.black == "Opponent") {
+                                appState.lobby.players.black = null;
+                            }
+                            else if (appState.lobby.players.white == "Opponent") {
+                                appState.lobby.players.white = null;
+                            }
+                            appState.lobby.isHost = true;
+                        }
                         break;
 
                     case "GameStarted":
@@ -54,7 +74,11 @@ class Connection {
                             currentTurn: data.update.state.currentTurn,
                             turnCount: data.update.state.turnCount,
                             gameEnded: false,
-                            winner: null
+                            winner: null,
+                            blackCaptures: data.update.state.blackCaptures,
+                            whiteCaptures: data.update.state.whiteCaptures,
+                            scoreBlack: data.update.state.scoreBlack,
+                            scoreWhite: data.update.state.scoreWhite
                         }
                         appState.screen = "game";
                         break;
@@ -66,7 +90,11 @@ class Connection {
                             currentTurn: data.update.state.currentTurn,
                             turnCount: data.update.state.turnCount,
                             gameEnded: false,
-                            winner: null
+                            winner: null,
+                            blackCaptures: data.update.state.blackCaptures,
+                            whiteCaptures: data.update.state.whiteCaptures,
+                            scoreBlack: data.update.state.scoreBlack,
+                            scoreWhite: data.update.state.scoreWhite
                         }
                         break;
 
@@ -77,7 +105,11 @@ class Connection {
                             currentTurn: data.update.state.currentTurn,
                             turnCount: data.update.state.turnCount,
                             gameEnded: true,
-                            winner: data.update.winner
+                            winner: data.update.winner,
+                            blackCaptures: data.update.state.blackCaptures,
+                            whiteCaptures: data.update.state.whiteCaptures,
+                            scoreBlack: data.update.state.scoreBlack,
+                            scoreWhite: data.update.state.scoreWhite
                         }
                         break;
                 }
