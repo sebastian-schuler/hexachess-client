@@ -41,6 +41,11 @@ class Connection {
                         appState.lobby.playerColor = appState.lobby.playerColor == "black" ? "white" : "black";
                         break;
 
+                    case "RandomizeColorsUpdated":
+                        if (!appState.lobby) return;
+                        appState.lobby.randomizeColor = data.update.randomizeColor;
+                        break;
+
                     case "PlayerJoined":
                         if (appState.lobby && appState.lobby?.players.black == null)
                             appState.lobby.players.black = "Opponent";
@@ -68,6 +73,7 @@ class Connection {
                         break;
 
                     case "GameStarted":
+                        if (!appState.lobby) return;
                         const initialMap = new Map<string, ChessHexagon>(JSON.parse(data.update.state.map));
                         appState.game = {
                             map: initialMap,
@@ -81,6 +87,7 @@ class Connection {
                             scoreWhite: data.update.state.scoreWhite
                         }
                         appState.screen = "game";
+                        appState.lobby.playerColor = data.update.playerColor;
                         break;
 
                     case "GameStateUpdate":
@@ -111,6 +118,11 @@ class Connection {
                             scoreBlack: data.update.state.scoreBlack,
                             scoreWhite: data.update.state.scoreWhite
                         }
+                        break;
+
+                    case "Message":
+                        if (!appState.lobby) return;
+                        appState.lobby.messages.push(data.update.message);
                         break;
                 }
             }

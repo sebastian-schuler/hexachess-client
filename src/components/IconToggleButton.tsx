@@ -1,20 +1,19 @@
 
 type IconButtonProps = {
+    value: boolean
     alt: string
     onClick: () => void
     icon: JSX.Element
-    variant?: 'filled' | 'light'
     size?: 'sm' | 'md' | 'lg'
-    disabled?: boolean
 }
 
-const IconButton = ({ alt, onClick, icon, variant = 'filled', size = 'md', disabled }: IconButtonProps) => {
+const IconToggleButton = ({ value, alt, onClick, icon, size = 'md' }: IconButtonProps) => {
 
     let classes = '';
 
-    if (variant === 'filled') {
-        classes += `${disabled ? 'bg-neutral-700' : 'bg-primary-500'} active:text-primary-500`;
-    } else if (variant === 'light') {
+    if (value) {
+        classes += 'bg-primary-500 active:text-primary-500';
+    } else {
         classes += 'bg-primary-500 bg-opacity-10 active:bg-opacity-20';
     }
 
@@ -30,9 +29,8 @@ const IconButton = ({ alt, onClick, icon, variant = 'filled', size = 'md', disab
         <div className='self-center'>
             <button
                 title={alt}
-                className={`text-white rounded-full ${!disabled && 'hover:scale-125'} transition ${classes}`}
+                className={`text-white rounded-full hover:scale-125 transition ${classes}`}
                 onClick={onClick}
-                disabled={disabled}
             >
                 {icon}
             </button>
@@ -40,4 +38,4 @@ const IconButton = ({ alt, onClick, icon, variant = 'filled', size = 'md', disab
     )
 }
 
-export default IconButton
+export default IconToggleButton

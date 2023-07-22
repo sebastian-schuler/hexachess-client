@@ -5,6 +5,7 @@ import { appState } from "../lib/State";
 import { connection } from "../lib/util/Connection";
 import { useToast } from "../lib/hooks/useToast";
 import { useSnapshot } from "valtio";
+import GameTitle from "../features/GameTitle";
 
 const Menu = () => {
 
@@ -35,11 +36,13 @@ const Menu = () => {
         appState.lobby = {
           id: data.id,
           isHost: true,
+          randomizeColor: false,
           playerColor: data.playerColor,
           players: {
             black: data.playerColor === "black" ? "You" : null,
             white: data.playerColor === "white" ? "You" : null,
           },
+          messages: [],
         };
       } else {
         showToastInvalidCreate()
@@ -52,20 +55,21 @@ const Menu = () => {
   /**
    * Join a lobby with the given ID
    */
-  const handleJoinLobby = (code:string) => {
+  const handleJoinLobby = (code: string) => {
     setAwaitingResponse(true);
-    console.log(code);
     connection.send({ tag: "JoinLobby", id: code }, (data) => {
       if (data.tag === "JoinedLobby") {
         appState.screen = "lobby";
         appState.lobby = {
           id: data.id,
           isHost: false,
+          randomizeColor: data.randomizeColor,
           playerColor: data.playerColor,
           players: {
             black: data.playerColor === "black" ? "You" : "Opponent",
             white: data.playerColor === "white" ? "You" : "Opponent",
           },
+          messages: [],
         };
       } else {
         showToastInvalidId()
@@ -89,13 +93,14 @@ const Menu = () => {
   };
 
   return (
-    <div className="flex flex-col gap-14">
-      <h1 className="text-6xl font-bold text-center text-white">HexaChess</h1>
+    <div className="flex flex-col gap-4 md:gap-8">
+
+      <GameTitle />
 
       <div className="grid grid-cols-1 md:grid-cols-1-auto-1 gap-8">
 
-        <div className="flex flex-col gap-4">
-          <h2 className="text-2xl text-center text-white mb-4">
+        <div className="flex flex-col">
+          <h2 className="text-xl md:text-2xl text-center text-white mb-4">
             Join Lobby
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -122,8 +127,8 @@ const Menu = () => {
 
         <div className="border-b-2 w-2/3 justify-self-center md:h-3/4 md:w-auto md:border-l-2 md:border-b-0 border-neutral-500 self-center"></div>
 
-        <div className="flex flex-col gap-4">
-          <h2 className="text-2xl text-center text-white mb-4">
+        <div className="flex flex-col">
+          <h2 className="text-xl md:text-2xl text-center text-white mb-4">
             Create Lobby
           </h2>
           <Button

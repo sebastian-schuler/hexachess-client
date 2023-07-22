@@ -1,37 +1,16 @@
 import { produce } from 'immer';
 import { useCallback, useEffect, useState } from 'react';
 import { useSnapshot } from 'valtio';
+import GameOverlay from '../features/GameOverlay';
 import GameSideboard from '../features/GameSideboard';
 import HexaBoard from '../features/HexaBoard';
 import { getPossibleMovements } from '../lib/GameMovement/MovementHandler';
 import { appState } from '../lib/State';
 import { connection } from '../lib/util/Connection';
 import { coordinatesToId, getHexId } from '../lib/util/Helpers';
-import { ChessHexagon, PlayerColor } from "../types/SharedTypes";
-
-/**
- * Get the graphic of the piece
- * @param key 
- * @param color 
- * @param type 
- * @returns 
- */
-const getPieceGraphic = (key: number, color: PlayerColor, type: string) => {
-    return <div key={key} className='stacked-element'>
-        <img src={`/${type}.svg`} alt='Captured' width={25} height={'auto'} className={`w-6 lg:w-8 ${color === "black" ? 'invert-[1]' : 'invert-[.1]'}`} />
-    </div>
-}
-
-/**
- * Get the name of the piece
- * @param hex 
- * @returns 
- */
-const getPieceName = (hex: ChessHexagon | null) => {
-    if (!hex || !hex.piece) return null;
-    let name = hex.piece.type.charAt(0).toUpperCase() + hex.piece.type.slice(1);
-    return name;
-}
+import { ChessHexagon } from "../types/SharedTypes";
+import Drawer from '../components/Drawer';
+import { useMediaQuery } from '../lib/hooks/useMediaQuery';
 
 const Game = () => {
 
@@ -43,6 +22,7 @@ const Game = () => {
     const [previousSelectedHex, setPreviousSelectedHex] = useState<ChessHexagon | null>(null);
     const isMyTurn = appStateSnap.game.currentTurn === appStateSnap.lobby?.playerColor;
     const turn = appStateSnap.game.turnCount;
+    const isMobile = useMediaQuery('(max-width: 768px)');
 
     useEffect(() => {
         if (appStateSnap?.game?.map) {
@@ -140,10 +120,19 @@ const Game = () => {
         return () => { }
     }, [selectedHex, previousSelectedHex, turn, isMyTurn, handleSelectionChange]);
 
+    const chat = []
+
+    for (let i = 0; i < 100; i++) {
+        chat.push("Test Message" + i);
+    }
+
+    const [open, setOpen] = useState(false);
+
     return (
-        <div className='flex flex-col md:flex-row select-none'>
+        <div className='flex flex-col md:flex-row select-none h-screen'>
 
             <div className='relative flex-grow shadow-2xl'>
+
                 <HexaBoard
                     map={gameMap}
                     selectedHex={selectedHex}
@@ -154,41 +143,33 @@ const Game = () => {
                     isMyTurn={isMyTurn}
                 />
 
-                <div className='absolute flex flex-col left-6 top-6 text-lg'>
-                    <div className='text-white'>
-                        Turn: <span className='font-bold'>{Math.floor(appStateSnap.game.turnCount)}</span>
-                    </div>
-                    <div className='text-white'>
-                        Selected: <span className='font-bold'>{selectedHex && getPieceName(selectedHex)}</span>
-                    </div>
-                    <div className={`${isMyTurn ? 'text-primary-500' : 'text-blue-500'} font-bold`}>
-                        {isMyTurn ? "Your Turn!" : "Opponents Turn!"}
-                    </div>
-                </div>
-
-                <div className={`absolute flex flex-col right-6 ${appStateSnap.lobby?.playerColor === 'white' ? 'top-6' : 'bottom-6'} bg-dark-500 p-2 rounded shadow-lg`}>
-                    <div className='text-white'>Score: {appStateSnap.game.scoreBlack}</div>
-                    <div className='flex'>
-                        {
-                            appStateSnap.game.blackCaptures.map((piece, i) => getPieceGraphic(i, 'black', piece))
-                        }
-                    </div>
-                </div>
-
-                <div className={`absolute flex flex-col right-6 ${appStateSnap.lobby?.playerColor === 'black' ? 'top-6' : 'bottom-6'} bg-dark-500 p-2 rounded shadow-lg`}>
-                    <div className='text-white'>Score: {appStateSnap.game.scoreWhite}</div>
-                    <div className='flex'>
-                        {
-                            appStateSnap.game.whiteCaptures.map((piece, i) => getPieceGraphic(i, 'white', piece))
-                        }
-                    </div>
-                </div>
-
+                <GameOverlay
+                    isMyTurn={isMyTurn}
+                    selectedHex={selectedHex}
+                    openDrawer={() => setOpen(true)}
+                    isMobile={isMobile}
+                />
             </div>
-
-            <GameSideboard />
+            {
+                isMobile ?
+                    (
+                        <Drawer
+                            isOpen={open}
+                            setIsOpen={setOpen}
+                        >
+                            <GameSideboard
+                                isMobile={isMobile}
+                                closeDrawer={() => setOpen(false)}
+                            />
+                        </Drawer>
+                    )
+                    : (
+                        <GameSideboard />
+                    )
+            }
         </div>
     )
 }
 
 export default Game
+

@@ -95,7 +95,7 @@ export const getPawnEnPassant = (fromHex: ChessHexagon, map: Map<string, ChessHe
         hexLeft.piece.player !== playerColor &&
         hexLeft.piece.pawnDoubleStepTurn === turn - 0.5
     ) {
-        result.push(playerColor === "white" ? { q: q - 1, r: r, s: s + 1 } : { q: q - 1, r: r - 1, s: s });
+        result.push(playerColor === "white" ? { q: q - 1, r: r, s: s + 1 } : { q: q - 1, r: r + 1, s: s });
     }
 
     return result;

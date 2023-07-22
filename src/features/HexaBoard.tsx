@@ -1,5 +1,10 @@
 import { HexGrid, Hexagon, Layout, Text } from 'react-hexgrid';
 import { ChessHexagon } from '../types/SharedTypes';
+import { getNthLetter } from '../lib/util/Helpers';
+import { useMediaQuery } from '../lib/hooks/useMediaQuery';
+import HexaBoardPiece from './HexaBoardPiece';
+
+const IS_DEV_MODE = false;
 
 type Props = {
     map: Map<string, ChessHexagon>,
@@ -37,50 +42,17 @@ const HexaBoard = ({ map, selectedHex, setSelectedHex, setPreviousSelectedHex, r
         }
     };
 
-    // Get piece image
-    const getImage = (hex: ChessHexagon) => {
-
-        const pieceType = hex.piece?.type;
-        const filter = hex.piece?.player === 'white' ? 'invert(100%)' : 'invert(9%)';
-
-        if (pieceType === 'pawn') {
-            return <circle cx="0" cy="0" r="5" filter={filter} fill="url(#pat-pawn)"></circle>
-        }
-
-        if (pieceType === 'rook') {
-            return <circle cx="0" cy="0" r="5" filter={filter} fill="url(#pat-rook)"></circle>
-        }
-
-        if (pieceType === 'knight') {
-            return <circle cx="0" cy="0" r="5" filter={filter} fill="url(#pat-knight)"></circle>
-        }
-
-        if (pieceType === 'bishop') {
-            return <circle cx="0" cy="0" r="5" filter={filter} fill="url(#pat-bishop)"></circle>
-        }
-
-        if (pieceType === 'queen') {
-            return <circle cx="0" cy="0" r="5" filter={filter} fill="url(#pat-queen)"></circle>
-        }
-
-        if (pieceType === 'king') {
-            return <circle cx="0" cy="0" r="5" filter={filter} fill="url(#pat-king)"></circle>
-        }
-
-        return null;
-    }
-
     const arr = Array.from(map.values());
+    const isMobile = useMediaQuery('(max-width: 768px)');
 
     return (
         <div className={`bg-dark-950 bg-pattern`}>
             <HexGrid width={'100%'} height={'100vh'} transform={rotateBoard ? 'scale(1, -1)' : undefined}>
-                <Layout size={{ x: 4.8, y: 4.8 }} flat={true} spacing={1.04} origin={{ x: 0, y: 0 }}>
+                <Layout size={{ x: isMobile ? 5.6 : 4.8, y: isMobile ? 5.6 : 4.8 }} flat={true} spacing={1.04} origin={{ x: 0, y: 0 }}>
                     {
                         arr.map((hex, index) => {
 
                             const fillColor = getFillColor(hex);
-                            const image = hex.piece?.type ? getImage(hex) : null;
 
                             return (
                                 <Hexagon key={index} q={hex.coords.q} r={hex.coords.r} s={hex.coords.s}
@@ -91,38 +63,31 @@ const HexaBoard = ({ map, selectedHex, setSelectedHex, setPreviousSelectedHex, r
                                     className={`${fillColor} cursor-pointer`}
                                 >
                                     {
-                                        image ?
-                                            <g transform={rotateBoard ? 'scale(1, -1)' : undefined}>{image}</g> :
-                                            <Text className={`${hex.isSelected ? "font-extrabold" : "font-normal"}`} fontSize={3} fill={'white'}>{hex.piece?.type}</Text>
+                                        hex.piece &&
+                                        <HexaBoardPiece
+                                            pieceType={hex.piece.type}
+                                            color={hex.piece.player}
+                                            rotate={rotateBoard}
+                                        />
                                     }
                                     {
-                                        displayCoords && <Text y={3.9} fontSize={1} fill={'white'} className='select-none' transform={rotateBoard ? 'scale(1, -1)' : undefined}>{hex.coords.q},{hex.coords.r},{hex.coords.s}</Text>
+                                        displayCoords && <Text y={-3.2} fontSize={1} fill={'white'} className='select-none' transform={rotateBoard ? 'scale(1, -1)' : undefined}>
+                                            {
+                                                IS_DEV_MODE ?
+                                                    (
+                                                        `${hex.coords.q} ${hex.coords.r} ${hex.coords.s}`
+                                                    ) :
+                                                    (
+                                                        getNthLetter(hex.coords2D.x) + " " + hex.coords2D.y
+                                                    )
+                                            }
+                                        </Text>
                                     }
                                 </Hexagon>
                             )
                         })
                     }
                 </Layout>
-                <defs>
-                    <pattern id="pat-pawn" x="0" y="0" width="6" height="6" patternUnits="objectBoundingBox">
-                        <image x="2" y="1.9" width="6" height="6" xlinkHref="pawn.svg"></image>
-                    </pattern>
-                    <pattern id="pat-rook" x="0" y="0" width="6" height="6" patternUnits="objectBoundingBox">
-                        <image x="2" y="1.9" width="6" height="6" xlinkHref="rook.svg"></image>
-                    </pattern>
-                    <pattern id="pat-bishop" x="0" y="0" width="6" height="6" patternUnits="objectBoundingBox">
-                        <image x="2" y="1.9" width="6" height="6" xlinkHref="bishop.svg"></image>
-                    </pattern>
-                    <pattern id="pat-queen" x="0" y="0" width="6" height="6" patternUnits="objectBoundingBox">
-                        <image x="2" y="1.9" width="6" height="6" xlinkHref="queen.svg"></image>
-                    </pattern>
-                    <pattern id="pat-king" x="0" y="0" width="6" height="6" patternUnits="objectBoundingBox">
-                        <image x="2" y="1.9" width="6" height="6" xlinkHref="king.svg"></image>
-                    </pattern>
-                    <pattern id="pat-knight" x="0" y="0" width="6" height="6" patternUnits="objectBoundingBox">
-                        <image x="1.5" y="2" width="5.8" height="5.8" xlinkHref="knight.svg"></image>
-                    </pattern>
-                </defs>
             </HexGrid>
         </div>
     )

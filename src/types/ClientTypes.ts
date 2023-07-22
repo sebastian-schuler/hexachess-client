@@ -14,11 +14,13 @@ export type AppState = {
 export type GameLobby = {
     id: string
     isHost: boolean
+    randomizeColor: boolean
     playerColor: PlayerColor
     players: {
         black: string | null
         white: string | null
     }
+    messages: string[]
 }
 
 export type GameState = {
